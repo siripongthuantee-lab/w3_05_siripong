@@ -14,7 +14,7 @@ class Product {
     required this.weight,
     required this.description,
   });
-
+//da
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
       id: json['id'].toString(),
