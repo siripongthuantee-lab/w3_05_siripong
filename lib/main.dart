@@ -20,12 +20,6 @@ class MyApp extends StatelessWidget {
           brightness: Brightness.light,
         ),
         useMaterial3: true,
-        cardTheme: CardTheme(
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
       ),
       home: const MyHomePage(title: 'รายการสินค้า'),
     );
@@ -67,7 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
-                Icons.shopping_bag_outlined,
+                Icons.inventory_2,
                 size: 24,
               ),
             ),
@@ -83,12 +77,6 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: FutureBuilder<List<Product>>(
         future: ApiService.fetchProduct(),
@@ -98,7 +86,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(
+                  const CircularProgressIndicator(
                     color: Colors.deepPurple,
                     strokeWidth: 3,
                   ),
@@ -191,24 +179,40 @@ class _MyHomePageState extends State<MyHomePage> {
                   ],
                 ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _SummaryItem(
-                      icon: Icons.inventory_2,
-                      label: 'สินค้าทั้งหมด',
-                      value: '${products.length}',
-                      color: Colors.deepPurple,
-                    ),
                     Container(
-                      height: 40,
-                      width: 1,
-                      color: Colors.grey[300],
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.deepPurple.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.inventory_2,
+                        color: Colors.deepPurple,
+                        size: 28,
+                      ),
                     ),
-                    _SummaryItem(
-                      icon: Icons.local_offer,
-                      label: 'โปรโมชั่น',
-                      value: 'ใหม่',
-                      color: Colors.orange,
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${products.length}',
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.deepPurple,
+                          ),
+                        ),
+                        Text(
+                          'สินค้าทั้งหมด',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -228,52 +232,6 @@ class _MyHomePageState extends State<MyHomePage> {
           );
         },
       ),
-    );
-  }
-}
-
-class _SummaryItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color color;
-
-  const _SummaryItem({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(icon, color: color, size: 28),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
-        ),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
-          ),
-        ),
-      ],
     );
   }
 }
@@ -303,6 +261,9 @@ class _ProductCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12),
         elevation: 3,
         shadowColor: Colors.deepPurple.withOpacity(0.2),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: () {
@@ -330,7 +291,7 @@ class _ProductCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Product Image with Badge
+                  // Product Image
                   Stack(
                     children: [
                       Hero(
@@ -409,7 +370,7 @@ class _ProductCard extends StatelessWidget {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              gradient: LinearGradient(
+                              gradient: const LinearGradient(
                                 colors: [Colors.orange, Colors.deepOrange],
                               ),
                               borderRadius: const BorderRadius.only(
@@ -538,7 +499,7 @@ class _ProductCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  // Arrow Icon with background
+                  // Arrow Icon
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
@@ -581,6 +542,16 @@ class ProductDetailPage extends StatelessWidget {
                 child: Image.network(
                   product.photo,
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: Colors.grey[300],
+                      child: const Icon(
+                        Icons.image_not_supported_outlined,
+                        size: 80,
+                        color: Colors.grey,
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
@@ -609,129 +580,167 @@ class ProductDetailPage extends StatelessWidget {
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
               child: Padding(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Product Name
                     Text(
                       product.name,
                       style: const TextStyle(
-                        fontSize: 24,
+                        fontSize: 26,
                         fontWeight: FontWeight.bold,
+                        height: 1.3,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
+
+                    // Price and Weight
                     Row(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Colors.deepPurple, Colors.purple],
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.deepPurple.withOpacity(0.3),
-                                blurRadius: 8,
-                                offset: const Offset(0, 4),
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Colors.deepPurple, Colors.purple],
                               ),
-                            ],
-                          ),
-                          child: Text(
-                            "฿${product.price}",
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.deepPurple.withOpacity(0.3),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              children: [
+                                const Icon(
+                                  Icons.monetization_on,
+                                  color: Colors.white,
+                                  size: 28,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  "฿${product.price}",
+                                  style: const TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const Text(
+                                  "ราคา",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.white70,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
-                        const SizedBox(width: 16),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.scale, size: 18),
-                              const SizedBox(width: 6),
-                              Text(
-                                "${product.weight} กรัม",
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[100],
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Column(
+                              children: [
+                                Icon(
+                                  Icons.scale,
+                                  color: Colors.grey[700],
+                                  size: 28,
                                 ),
-                              ),
-                            ],
+                                const SizedBox(height: 8),
+                                Text(
+                                  "${product.weight}",
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey[800],
+                                  ),
+                                ),
+                                Text(
+                                  "กรัม",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 24),
+
+                    const SizedBox(height: 28),
+                    const Divider(),
+                    const SizedBox(height: 20),
+
+                    // Description Section
                     const Text(
                       'รายละเอียดสินค้า',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Text(
-                      product.description,
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: Colors.grey[700],
-                        height: 1.6,
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.grey[200]!,
+                          width: 1,
+                        ),
+                      ),
+                      child: Text(
+                        product.description,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey[700],
+                          height: 1.6,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 32),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('เพิ่ม ${product.name} ลงตะกร้าแล้ว'),
-                              backgroundColor: Colors.green,
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepPurple,
-                          foregroundColor: Colors.white,
-                          elevation: 4,
-                          shadowColor: Colors.deepPurple.withOpacity(0.5),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
+
+                    const SizedBox(height: 24),
+
+                    // Product ID
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.deepPurple.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.tag,
+                            size: 18,
+                            color: Colors.deepPurple[300],
                           ),
-                        ),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.shopping_cart_outlined, size: 24),
-                            SizedBox(width: 12),
-                            Text(
-                              'เพิ่มลงตะกร้า',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'รหัสสินค้า: ${product.id}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
+
+                    const SizedBox(height: 32),
                   ],
                 ),
               ),
